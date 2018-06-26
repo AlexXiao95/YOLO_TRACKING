@@ -13,7 +13,7 @@ This is the repo for multi-object tracking based on [YOLOv3](https://pjreddie.co
 The system can be roughly divided into two mainly part, which are object detection part and multi object tracking part. First, we will use the WIFI to stream the video from the drone to the computer. Then we apply object detection frame by frame. For every object in one frame, we extract the appearance feature and motion feature and send these information into multi object tracking part.
 
 <div  align="center"> 
-<img src="data/framework.png", width="300">
+<img src="data/framework.png", width="400">
 </div>
 
 ## Usage
@@ -22,27 +22,27 @@ The system can be roughly divided into two mainly part, which are object detecti
 
 * Download the pre-trained weight file:
 
-``
+```
 wget https://pjreddie.com/media/files/yolov3.weights
-``
+```
 
 * Run real-time tracking on webcam:
 
-``
+```
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights -c CAM_ID 
-``
+```
 
 * Run real-time tracking on video file:
 
-``
+```
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights <video_file>
-``
+```
 
 * Run real-time tracking on drone video (Should [set up video stream](http://developer.parrot.com/blog/2016/play-bebop-stream-on-vlc/) first):
 
-``
+```
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights bebop.sdp
-``
+```
 
 ## Reference
 

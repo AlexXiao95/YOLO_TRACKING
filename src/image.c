@@ -4,6 +4,7 @@
 #include "cuda.h"
 #include <stdio.h>
 #include <math.h>
+#include "TotalWrapper.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -11,6 +12,12 @@
 #include "stb_image_write.h"
 
 int windows = 0;
+
+extern count;
+extern MOT;
+extern peopleCounting;
+extern frameCurrent;
+
 
 float colors[6][3] = { {1,0,1}, {0,0,1},{0,1,1},{0,1,0},{1,1,0},{1,0,0} };
 
@@ -292,6 +299,7 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
 
             draw_box_width(im, left, top, right, bot, width, red, green, blue);
             if (alphabet) {
+                printf("%s\n", labelstr);
                 image label = get_label(alphabet, labelstr, (im.h*.03));
                 draw_label(im, top + width, left, label, rgb);
                 free_image(label);
@@ -307,6 +315,168 @@ void draw_detections(image im, detection *dets, int num, float thresh, char **na
             }
         }
     }
+}
+
+void draw_tracking(image im, image im2, detection *dets, int num, float thresh, char **names, image **alphabet, int classes)
+{
+    int i,j;
+
+    int peopleNum = 0;
+    for(i = 0; i < num; ++i){
+        char labelstr[4096] = {0};
+        int class = -1;
+        for(j = 0; j < 1; ++j){
+            if (dets[i].prob[j] > thresh){
+                peopleNum = peopleNum + 1;
+                if (class < 0) {
+                    strcat(labelstr, names[j]);
+                    class = j;
+                } else {
+                    strcat(labelstr, ", ");
+                    strcat(labelstr, names[j]);
+                }
+                printf("%s: %.0f%%\n", names[j], dets[i].prob[j]*100);
+            }
+        }
+        
+    }
+
+    printf("\npeopleNum: %d \n", peopleNum);
+    float **res = calloc(peopleNum, sizeof(float *));
+    peopleNum = 0;
+
+    for(i = 0; i < num; ++i){
+        char labelstr[4096] = {0};
+        int class = -1;
+        for(j = 0; j < classes; ++j){
+            if (dets[i].prob[j] > thresh){
+                if (class < 0) {
+                    strcat(labelstr, names[j]);
+                    class = j;
+                } else {
+                    strcat(labelstr, ", ");
+                    strcat(labelstr, names[j]);
+                }
+                // printf("%s: %.0f%%\n", names[j], dets[i].prob[j]*100);
+            }
+        }
+        if(class == 0){
+            // int width = im.h * .006;
+
+            /*
+               if(0){
+               width = pow(prob, 1./2.)*10+1;
+               alphabet = 0;
+               }
+             */
+
+            //printf("%d %s: %.0f%%\n", i, names[class], prob*100);
+            // int offset = class*123457 % classes;
+            // float red = get_color(2,offset,classes);
+            // float green = get_color(1,offset,classes);
+            // float blue = get_color(0,offset,classes);
+            // float rgb[3];
+
+            //width = prob*20+2;
+
+            // rgb[0] = red;
+            // rgb[1] = green;
+            // rgb[2] = blue;
+            box b = dets[i].bbox;
+            //printf("%f %f %f %f\n", b.x, b.y, b.w, b.h);
+
+            int left  = (b.x-b.w/2.)*im.w;
+            int right = (b.x+b.w/2.)*im.w;
+            int top   = (b.y-b.h/2.)*im.h;
+            int bot   = (b.y+b.h/2.)*im.h;
+
+            if(left < 0) left = 0;
+            if(right > im.w-1) right = im.w-1;
+            if(top < 0) top = 0;
+            if(bot > im.h-1) bot = im.h-1;
+
+            res[peopleNum] = calloc(2704, sizeof(float *));
+            res[peopleNum][0] = left;
+            res[peopleNum][1] = top;
+            res[peopleNum][2] = right;
+            res[peopleNum][3] = bot;
+
+            float *feat = calloc(2700, sizeof(float *));
+            getHog(im2, left, right, top, bot, feat);
+            for(int q = 0; q < 2700; ++q){
+                res[peopleNum][q+4] = feat[q];
+            }
+            free(feat);
+            printf("feature out test: %.5f \n", res[peopleNum][4]);
+            //printf("%s: %.0f%% bbox: %.0f, %.0f, %.0f, %.0f, frame: %d \n", names[class], prob*100, res[peopleNum][0], res[peopleNum][1], res[peopleNum][2], res[peopleNum][3], count);
+            peopleNum = peopleNum + 1;
+
+        }
+    }
+    
+    printf("\nEnter tracking: \n");
+    int **output;
+    int outputSize = trackOneFrame(MOT, frameCurrent, res, peopleNum, &output);
+    frameCurrent++;
+    printf("\nExit tracking.\n");
+
+    for(i = 0; i < outputSize; ++i) {
+        char labelstr[4096] = {0};
+
+        int width = im.h * .006;
+
+        int trackletID = output[i][5];
+
+        if (trackletID > peopleCounting) peopleCounting = trackletID;
+
+        //int offset = trackletID;
+        //float red = get_color(2,offset,classes);
+        //float green = get_color(1,offset,classes);
+        //float blue = get_color(0,offset,classes);
+        float red = (trackletID * 100) % 256 / 256.0;
+        float green = (trackletID * 200) % 256 / 256.0;
+        float blue = (trackletID * 300) % 256 / 256.0;
+        
+        float rgb[3];
+        
+        rgb[0] = red;
+        rgb[1] = green;
+        rgb[2] = blue;
+
+        draw_box_width(im, output[i][1], output[i][2], output[i][3], output[i][4], width, red, green, blue);
+        
+        if (alphabet) {
+            sprintf(labelstr, "%d", trackletID);
+            printf("%s\n", labelstr);
+            image label = get_label(alphabet, labelstr, (im.h*.03));
+            draw_label(im, output[i][2] + width, output[i][1], label, rgb);
+            free_image(label);
+        }
+    }
+}
+
+void getHog(image p, int left, int top, int right, int bot, float *feat)
+{
+    image copy = copy_image(p);
+    if(p.c == 3) rgbgr_image(copy);
+    int x,y,k;
+
+    image resizeCopy = resize_image(copy, 48, 128);
+
+    IplImage *disp = cvCreateImage(cvSize(48, 128), IPL_DEPTH_8U, p.c);
+    int step = disp->widthStep;
+    for(y = 0; y < 128; ++y){
+        for(x = 0; x < 48; ++x){
+            for(k= 0; k < 3; ++k){
+                disp->imageData[y*step + x*p.c + k] = (unsigned char)(get_pixel(resizeCopy,x,y,k)*255);
+            }
+        }
+    }
+
+    getHogFromCpp(disp,feat);
+    cvReleaseImage(&disp);
+    free_image(resizeCopy);
+    free_image(copy);
 }
 
 void transpose_image(image im)

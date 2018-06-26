@@ -36,6 +36,13 @@ static int demo_done = 0;
 static int demo_total = 0;
 double demo_time;
 
+
+struct tagTracking *MOT;
+int count = 0;
+int peopleCounting = 0;
+int frameCurrent = 0;
+
+
 detection *get_network_boxes(network *net, int w, int h, float thresh, float hier, int *map, int relative, int *num);
 
 int size_network(network *net)
@@ -129,8 +136,11 @@ void *detect_in_thread(void *ptr)
     printf("\033[1;1H");
     printf("\nFPS:%.1f\n",fps);
     printf("Objects:\n\n");
+    //printf("%d", buff[0].w);
+    //printf("%d", buff[0].h);
     image display = buff[(buff_index+2) % 3];
-    draw_detections(display, dets, nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes);
+    //draw_detections(display, dets, nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes);
+    draw_tracking(display, display, dets, nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes);
     free_detections(dets, nboxes);
 
     demo_index = (demo_index + 1)%demo_frame;
@@ -184,6 +194,8 @@ void *detect_loop(void *ptr)
 
 void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, int classes, int delay, char *prefix, int avg_frames, float hier, int w, int h, int frames, int fullscreen)
 {
+
+    MOT = GetInstance();
     //demo_frame = avg_frames;
     image **alphabet = load_alphabet();
     demo_names = names;

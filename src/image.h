@@ -43,6 +43,7 @@ void hsv_to_rgb(image im);
 void yuv_to_rgb(image im);
 void rgb_to_yuv(image im);
 
+void draw_tracking(image im, image im2, detection *dets, int num, float thresh, char **names, image **alphabet, int classes);
 
 image collapse_image_layers(image source, int border);
 image collapse_images_horz(image *ims, int n);

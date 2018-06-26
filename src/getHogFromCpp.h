@@ -1,0 +1,1 @@
+extern "C" void getHogFromCpp(IplImage *Ipl, float *feat);

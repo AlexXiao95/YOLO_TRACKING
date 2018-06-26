@@ -29,7 +29,7 @@ wget https://pjreddie.com/media/files/yolov3.weights
 * Run real-time tracking on webcam:
 
 ```
-./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights -c CAM_ID 
+./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights -c <cam_id>
 ```
 
 * Run real-time tracking on video file:

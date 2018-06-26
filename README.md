@@ -21,21 +21,25 @@ The system can be roughly divided into two mainly part, which are object detecti
 * Install [darknet](https://pjreddie.com/darknet/install/)
 
 * Download the pre-trained weight file:
+
 ``
 wget https://pjreddie.com/media/files/yolov3.weights
 ``
 
 * Run real-time tracking on webcam:
+
 ``
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights -c CAM_ID 
 ``
 
 * Run real-time tracking on video file:
+
 ``
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights <video_file>
 ``
 
 * Run real-time tracking on drone video (Should [set up video stream](http://developer.parrot.com/blog/2016/play-bebop-stream-on-vlc/) first):
+
 ``
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights bebop.sdp
 ``

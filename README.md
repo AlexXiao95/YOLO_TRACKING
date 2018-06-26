@@ -12,8 +12,9 @@ This is the repo for multi-object tracking based on [YOLOv3](https://pjreddie.co
 ## Framework
 The system can be roughly divided into two mainly part, which are object detection part and multi object tracking part. First, we will use the WIFI to stream the video from the drone to the computer. Then we apply object detection frame by frame. For every object in one frame, we extract the appearance feature and motion feature and send these information into multi object tracking part.
 
-![](data/framework.png)
-
+<div  align="center"> 
+<img src="data/framework.png", width="300">
+</div>
 
 ## Usage
 

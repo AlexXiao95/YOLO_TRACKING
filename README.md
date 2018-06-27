@@ -16,9 +16,22 @@ The system can be roughly divided into two mainly part, which are object detecti
 <img src="data/framework.png", width="400">
 </div>
 
+
+## Prerequisite
+* OpenCV
+* CUDA
+* cuDNN
+
+
 ## Usage
 
-* Install [darknet](https://pjreddie.com/darknet/install/)
+* Install
+
+```
+git clone https://github.com/AlexXiao95/YOLO_TRACKING
+cd YOLO_TRACKING
+make
+```
 
 * Download the pre-trained weight file:
 

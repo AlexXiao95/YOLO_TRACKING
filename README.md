@@ -51,7 +51,7 @@ wget https://pjreddie.com/media/files/yolov3.weights
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights <video_file>
 ```
 
-* Run real-time tracking on drone video (Should [set up video stream](http://developer.parrot.com/blog/2016/play-bebop-stream-on-vlc/) first):
+* Run real-time tracking on drone video (Should [set up video stream](https://github.com/Parrot-Developers/application_notes/blob/master/BebopStreamVLC/README.md) first):
 
 ```
 ./darknet detector demo cfg/coco.data cfg/yolov3.cfg yolov3.weights bebop.sdp
